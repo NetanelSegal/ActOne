@@ -1,0 +1,3 @@
+export const VERIFICATION_THRESHOLD_PERFECT = 0.95;
+export const VERIFICATION_THRESHOLD_PASSABLE = 0.8;
+export const LINE_PROMPT_KEYWORD = "line";
