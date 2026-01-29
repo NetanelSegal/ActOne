@@ -8,8 +8,17 @@ import scriptRoutes from './routes/scripts.js';
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 const isProd = process.env.NODE_ENV === 'production';
-const SESSION_SECRET =
-  process.env.SESSION_SECRET || 'dev-secret-change-in-production';
+const DEV_SESSION_SECRET = 'dev-secret-change-in-production';
+const SESSION_SECRET = process.env.SESSION_SECRET ?? DEV_SESSION_SECRET;
+
+if (
+  isProd &&
+  (SESSION_SECRET === DEV_SESSION_SECRET || SESSION_SECRET.length < 32)
+) {
+  throw new Error(
+    'SESSION_SECRET must be set to a secure value (≥32 chars) in production. Do not use the dev default.',
+  );
+}
 
 export const app = express();
 app.use(express.json());
@@ -37,3 +46,23 @@ if (isProd) {
     res.sendFile(path.join(distPath, 'index.html'));
   });
 }
+
+// Error-handling middleware: catches errors from asyncHandler and sends 500 with context
+app.use(
+  (
+    err: unknown,
+    _req: express.Request,
+    res: express.Response,
+    _next: express.NextFunction,
+  ) => {
+    const message =
+      err instanceof Error ? err.message : 'Internal server error';
+    console.error('Unhandled route error:', err);
+    res
+      .status(500)
+      .json({
+        error: 'Internal server error',
+        message: isProd ? undefined : message,
+      });
+  },
+);

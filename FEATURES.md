@@ -27,6 +27,8 @@ Single source of truth for what’s done and what’s left. Update this file whe
 - [x] Shared: `shared/schemas/api.ts`, `shared/schemas/ws.ts`, `shared/constants.ts`, `shared/types/api.ts`
 - [x] STT: `server/lib/gemini-stt.ts` (Gemini audio → transcript)
 - [x] WS protocol: event types defined in shared schemas; server still echo-only
+- [x] Normalize: `server/lib/normalize.ts` (punctuation, Hebrew numbers, lowercase, whitespace, filler removal)
+- [x] Verify: `server/lib/verify.ts` (Levenshtein similarity with thresholds, filler handling)
 
 ### Testing
 
@@ -39,8 +41,8 @@ Single source of truth for what’s done and what’s left. Update this file whe
 
 ### Rehearsal pipeline (Phase 3 – rest)
 
-- [ ] **Server:** `server/lib/normalize.ts` (punctuation, lowercase, collapse spaces; Hebrew numbers optional)
-- [ ] **Server:** `server/lib/verify.ts` (Levenshtein similarity, thresholds from `shared/constants.ts`)
+- [x] **Server:** `server/lib/normalize.ts` (punctuation, lowercase, collapse spaces; Hebrew numbers)
+- [x] **Server:** `server/lib/verify.ts` (Levenshtein similarity, thresholds from `shared/constants.ts`)
 - [ ] **Server:** `server/ws/` or WS handler in `server/index.ts`: `start_session` (load script, enforce ownership), buffer audio, on end-utterance → Gemini STT → normalize → verify; on pass → OpenAI TTS partner line → send `tts_audio`; on fail → send `verification_fail`; handle “Line” keyword for current-line TTS
 - [ ] **Client:** VAD (`@ricky0123/vad-react`), audio capture (getUserMedia, echo cancellation), send chunks over WS
 - [ ] **Client:** Rehearsal UI: start session with script id, show current/partner line, pass/fail and optional diff
@@ -72,12 +74,12 @@ Single source of truth for what’s done and what’s left. Update this file whe
 
 ## Quick reference
 
-| Area       | Done                                  | Next                                                     |
-| ---------- | ------------------------------------- | -------------------------------------------------------- |
-| Foundation | Express, Vite, WS, DB, client         | —                                                        |
-| Auth       | Signup, login, sessions, scripts CRUD | —                                                        |
-| Rehearsal  | Gemini STT lib, shared schemas        | Normalize, verify, WS handler, client VAD + rehearsal UI |
-| Testing    | Vitest (FE + BE), Playwright E2E      | —                                                        |
-| Latency    | —                                     | Budget, pregen, cache, reconnect                         |
-| UI         | Minimal App (health, WS)              | Script picker, rehearsal view, cues                      |
-| Deploy     | —                                     | Single app + Postgres, env                               |
+| Area       | Done                                              | Next                                  |
+| ---------- | ------------------------------------------------- | ------------------------------------- |
+| Foundation | Express, Vite, WS, DB, client                     | —                                     |
+| Auth       | Signup, login, sessions, scripts CRUD             | —                                     |
+| Rehearsal  | Gemini STT lib, shared schemas, normalize, verify | WS handler, client VAD + rehearsal UI |
+| Testing    | Vitest (FE + BE), Playwright E2E                  | —                                     |
+| Latency    | —                                                 | Budget, pregen, cache, reconnect      |
+| UI         | Minimal App (health, WS)                          | Script picker, rehearsal view, cues   |
+| Deploy     | —                                                 | Single app + Postgres, env            |

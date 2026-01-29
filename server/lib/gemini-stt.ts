@@ -31,12 +31,17 @@ export async function transcribeAudio(
     },
   };
 
-  const result = await model.generateContent([
-    'Transcribe this audio to plain text. Preserve the language (Hebrew or English). Output only the transcribed text, no punctuation or commentary.',
-    audioPart,
-  ]);
+  try {
+    const result = await model.generateContent([
+      'Transcribe this audio to plain text. Preserve the language (Hebrew or English). Output only the transcribed text, no punctuation or commentary.',
+      audioPart,
+    ]);
 
-  const response = result.response;
-  const text = response.text();
-  return text?.trim() ?? '';
+    const response = result.response;
+    const text = response.text();
+    return text?.trim() ?? '';
+  } catch (err) {
+    const message = err instanceof Error ? err.message : String(err);
+    throw new Error(`Gemini STT failed: ${message}`);
+  }
 }
